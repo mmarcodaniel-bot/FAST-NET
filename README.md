@@ -1,5 +1,5 @@
 # FASTCASH.1
-# FastCash — Problema, Solución y Clientes
+
 
 ---
 
