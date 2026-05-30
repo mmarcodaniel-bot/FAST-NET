@@ -1,0 +1,1067 @@
+LINK DE DOCUMENTO
+
+file:///C:/Users/MARK%20DANIELS/Downloads/FastCash-Documentacion.html
+
+
+
+
+
+ARQUITECTURA DEL SISTEMA:
+
+## 1. ¿Qué es Fast Cash?
+
+
+Fast Cash es una plataforma integral de gestión financiera, productividad laboral y administración de negocios, diseñada específicamente para freelancers y pequeñas empresas en América Latina. Su objetivo es centralizar en una sola aplicación todo lo que un profesional independiente o PYME necesita para operar: finanzas, tareas, contratos, inventario, agenda y asistencia con inteligencia artificial.
+
+---
+
+## 2. Problema que resuelve
+
+
+**Empresariales:**
+
+- Los freelancers y PYMEs de LATAM no tienen una herramienta que combine finanzas, tareas y contratos en un solo lugar
+- Los contratos digitales no tienen validez ni trazabilidad — Fast Cash lo resuelve con blockchain
+- La facturación manual no cumple automáticamente con regulaciones como SRI (Ecuador) o DIAN (Colombia)
+
+**Financieros:**
+
+- Sin visibilidad real del flujo de caja en tiempo real
+- Pagos internacionales costosos e intermediarios innecesarios
+- Inventarios manejados en hojas de Excel desconectadas de las finanzas
+
+**Sociales:**
+
+- Brecha tecnológica: las herramientas existentes están en inglés y no están adaptadas a LATAM
+- Desconfianza en bancos tradicionales → blockchain como alternativa transparente
+- Pequeños negocios sin acceso a herramientas empresariales profesionales
+
+---
+
+## 3. Tecnologías utilizadas
+
+
+**Frontend:**
+
+- Next.js 16 con App Router
+- React 18 con TypeScript
+- Tailwind CSS para estilos
+- Apollo Client para conexión GraphQL
+- Framer Motion para animaciones
+- Recharts para gráficas financieras
+- Lucide React para íconos
+
+**Backend:**
+
+- NestJS con TypeScript
+- GraphQL con Apollo Server
+- Prisma ORM
+- JWT para autenticación
+- class-validator para validaciones
+- Ethers.js para integración con Ethereum
+
+**Blockchain:**
+
+- Red Ethereum (Sepolia Testnet)
+- Ethers.js v6
+- Hash de contratos con keccak256
+- Verificación de contratos on-chain
+- Wallets compatibles con MetaMask
+
+**Infraestructura:**
+
+- Docker y Kubernetes (preparado)
+- AWS (preparado para despliegue)
+- PostgreSQL con Prisma
+- IPFS para almacenamiento descentralizado (planificado)
+
+---
+
+## 4. Arquitectura del sistema
+
+```
+Usuario
+  ↓
+Frontend (Next.js) — Puerto 3000
+  ↓ Apollo Client (GraphQL)
+Backend (NestJS) — Puerto 3001
+  ↓
+┌─────────────────────────────┐
+│  Módulos del Backend        │
+│  - AuthModule (JWT)         │
+│  - FinanceModule            │
+│  - TaskModule               │
+│  - BlockchainModule         │
+│  - AIModule (Fasty)         │
+│  - ContractsModule          │
+│  - ScheduleModule           │
+│  - NotificationsModule      │
+└─────────────────────────────┘
+  ↓
+PostgreSQL (Prisma ORM)
+  ↓
+Ethereum Blockchain (Sepolia)
+```
+
+---
+
+## 5. Módulos de la aplicación
+
+
+**🏠 Inicio** — Panel principal con resumen financiero: balance total, ingresos del mes, gastos del mes y actividad reciente.
+
+**💰 Finanzas** — Control completo de ingresos y gastos con filtros y totales en tiempo real.
+
+**📅 Agenda** — Calendario mensual interactivo con eventos personalizables.
+
+**✅ Tareas** — Gestión de tareas con prioridades alta, media y baja.
+
+**📊 Inventario** — Hoja de cálculo interactiva para gestionar productos y calcular valor total.
+
+**📄 Contratos** — Contratos con hash registrado en la blockchain de Ethereum.
+
+**🤖 Fasty IA** — Asistente financiero inteligente con chat en tiempo real.
+
+---
+
+¿POR QUE SOMOS MEJORES QUE LA COMPETENCIA?
+
+| Característica | Fast Cash | ClickUp | Monday | Notion |
+|---|---|---|---|---|
+| Finanzas integradas | ✅ | ❌ | ❌ | ❌ |
+| Blockchain para contratos | ✅ | ❌ | ❌ | ❌ |
+| IA financiera (Fasty) | ✅ | Básica | Básica | ❌ |
+| Diseñado para LATAM | ✅ | ❌ | ❌ | ❌ |
+| Inventario + finanzas | ✅ | ❌ | Parcial | ❌ |
+| Pagos crypto | ✅ | ❌ | ❌ | ❌ |
+| En español nativo | ✅ | Parcial | Parcial | Parcial |
+
+---
+
+## 7. Código del proyecto
+
+---
+
+### 7.1 — `fast-cash-frontend/lib/apollo-client.ts`
+
+```typescript
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+
+const httpLink = createHttpLink({
+  uri: 'http://localhost:3001/graphql',
+});
+
+const client = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache(),
+});
+
+export default client;
+```
+
+**Para qué sirve:**
+
+Configura la conexión entre el frontend y el backend mediante GraphQL. Define la URL del servidor (puerto 3001) y el sistema de caché en memoria para optimizar las consultas y evitar llamadas innecesarias al servidor.
+
+---
+
+### 7.2 — `fast-cash-frontend/lib/providers.tsx`
+
+```tsx
+'use client';
+import { ApolloProvider } from '@apollo/client/react';
+import client from './apollo-client';
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ApolloProvider client={client}>
+      {children}
+    </ApolloProvider>
+  );
+}
+```
+
+**Para qué sirve:**
+
+Envuelve toda la aplicación con el proveedor de Apollo, permitiendo que cualquier componente en cualquier parte de la app pueda hacer consultas GraphQL al backend sin necesidad de pasar el cliente manualmente.
+
+---
+
+### 7.3 — `fast-cash-frontend/app/layout.tsx`
+
+```tsx
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Providers } from '../lib/providers';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'Fast Cash',
+  description: 'Gestión financiera inteligente',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="es">
+      <body className={inter.className}>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+**Para qué sirve:** Es el layout raíz de toda la aplicación Next.js. Define la fuente global (Inter), los metadatos de la página (título y descripción), y envuelve toda la app con los Providers de Apollo para que GraphQL esté disponible en toda la aplicación.
+
+---
+
+### 7.4 — `fast-cash-frontend/app/globals.css`
+
+```css
+@import "tailwindcss";
+
+:root {
+  --gold: #D4AF37;
+  --gold-light: #F5D76E;
+  --black: #0A0A0A;
+  --dark: #111111;
+  --card: #1A1A1A;
+  --border: #2A2A2A;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0A0A0A;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #111111; }
+::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 3px; }
+```
+
+**Para qué sirve:** Define los estilos globales de la aplicación. Establece la paleta de colores oficial de Fast Cash (negro #0A0A0A y dorado #D4AF37), el fondo oscuro del body, la fuente Inter, y personaliza la barra de scroll con el color dorado de la marca.
+
+---
+
+### 7.5 — `fast-cash-frontend/app/page.tsx` (Login)
+
+```tsx
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => router.push('/dashboard'), 1000);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4"
+      style={{background: 'radial-gradient(ellipse at center, #1a1500 0%, #0A0A0A 70%)'}}>
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-6xl font-bold mb-2" style={{color: '#D4AF37'}}>⚡ Fast Cash</h1>
+          <p style={{color: '#888'}}>Gestión financiera inteligente para LATAM</p>
+        </div>
+        <div className="rounded-2xl p-8" style={{background: '#111111', border: '1px solid #D4AF3740'}}>
+          <h2 className="text-2xl font-semibold text-white mb-6">Iniciar sesión</h2>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="text-sm mb-1 block" style={{color: '#D4AF37'}}>Correo electrónico</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full text-white rounded-lg px-4 py-3 focus:outline-none"
+                style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}
+                placeholder="tu@email.com" required />
+            </div>
+            <div>
+              <label className="text-sm mb-1 block" style={{color: '#D4AF37'}}>Contraseña</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                className="w-full text-white rounded-lg px-4 py-3 focus:outline-none"
+                style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}
+                placeholder="••••••••" required />
+            </div>
+            <button type="submit" disabled={loading}
+              className="w-full font-bold py-3 rounded-lg transition-all mt-2"
+              style={{background: loading ? '#8a7320' : '#D4AF37', color: '#0A0A0A'}}>
+              {loading ? 'Entrando...' : 'Entrar →'}
+            </button>
+          </form>
+          <p className="text-center mt-6 text-sm" style={{color: '#666'}}>
+            ¿No tienes cuenta?{' '}
+            <a href="/register" style={{color: '#D4AF37'}}>Regístrate</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Es la página de inicio de sesión de Fast Cash. Muestra el logo, un formulario con email y contraseña, y al enviar redirige al dashboard. Actualmente funciona en modo demo (sin validación real), preparada para conectarse al backend de autenticación JWT.
+
+---
+
+### 7.6 — `fast-cash-frontend/app/dashboard/page.tsx`
+
+```tsx
+'use client';
+import { useState } from 'react';
+import Sidebar from '../../components/Sidebar';
+import InicioTab from '../../components/tabs/InicioTab';
+import FinanzasTab from '../../components/tabs/FinanzasTab';
+import AgendaTab from '../../components/tabs/AgendaTab';
+import TareasTab from '../../components/tabs/TareasTab';
+import InventarioTab from '../../components/tabs/InventarioTab';
+import ContratosTab from '../../components/tabs/ContratosTab';
+import FastyTab from '../../components/tabs/FastyTab';
+
+export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState('inicio');
+
+  const tabs: Record<string, React.ReactElement> = {
+    inicio: <InicioTab />,
+    finanzas: <FinanzasTab />,
+    agenda: <AgendaTab />,
+    tareas: <TareasTab />,
+    inventario: <InventarioTab />,
+    contratos: <ContratosTab />,
+    fasty: <FastyTab />,
+  };
+
+  return (
+    <div className="flex min-h-screen" style={{background: '#0A0A0A'}}>
+      <Sidebar active={activeTab} setActive={setActiveTab} />
+      <main className="flex-1 p-8 overflow-y-auto">
+        {tabs[activeTab]}
+      </main>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Es el contenedor principal del dashboard. Maneja qué pestaña está activa y renderiza el componente correspondiente. Usa un objeto `tabs` como mapa para cargar dinámicamente cada módulo según la selección del sidebar.
+
+---
+
+### 7.7 — `fast-cash-frontend/components/Sidebar.tsx`
+
+```tsx
+'use client';
+import { useRouter } from 'next/navigation';
+
+const items = [
+  { id: 'inicio', label: 'Inicio', icon: '🏠' },
+  { id: 'finanzas', label: 'Finanzas', icon: '💰' },
+  { id: 'agenda', label: 'Agenda', icon: '📅' },
+  { id: 'tareas', label: 'Tareas', icon: '✅' },
+  { id: 'inventario', label: 'Inventario', icon: '📊' },
+  { id: 'contratos', label: 'Contratos', icon: '📄' },
+  { id: 'fasty', label: 'Fasty IA', icon: '🤖' },
+];
+
+export default function Sidebar({ active, setActive }: { active: string; setActive: (id: string) => void }) {
+  const router = useRouter();
+  return (
+    <div className="w-60 flex flex-col p-4 h-screen sticky top-0"
+      style={{background: '#111111', borderRight: '1px solid #D4AF3730'}}>
+      <h1 className="text-2xl font-bold mb-8 mt-2" style={{color: '#D4AF37'}}>⚡ Fast Cash</h1>
+      <nav className="flex flex-col gap-1 flex-1">
+        {items.map((item) => (
+          <button key={item.id} onClick={() => setActive(item.id)}
+            className="text-left px-4 py-3 rounded-lg transition-all flex items-center gap-3"
+            style={{
+              background: active === item.id ? '#D4AF37' : 'transparent',
+              color: active === item.id ? '#0A0A0A' : '#888',
+              fontWeight: active === item.id ? '700' : '400',
+            }}>
+            <span>{item.icon}</span>
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+      <button onClick={() => router.push('/')}
+        className="text-left px-4 py-3 rounded-lg flex items-center gap-3"
+        style={{color: '#555'}}>
+        🚪 Cerrar sesión
+      </button>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Es la barra de navegación lateral fija del dashboard. Muestra todos los módulos disponibles, resalta el módulo activo con color dorado, y permite navegar entre secciones. También contiene el botón de cerrar sesión que redirige al login.
+
+---
+
+### 7.8 — `components/tabs/InicioTab.tsx`
+
+```tsx
+'use client';
+export default function InicioTab() {
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-2 text-white">Buenos días 👋</h2>
+      <p className="mb-8" style={{color: '#888'}}>Resumen de tu actividad financiera</p>
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {[
+          { label: 'Balance Total', value: '$12,450.00', color: '#D4AF37' },
+          { label: 'Ingresos del mes', value: '$3,200.00', color: '#4ade80' },
+          { label: 'Gastos del mes', value: '$1,850.00', color: '#f87171' },
+        ].map((card) => (
+          <div key={card.label} className="rounded-xl p-6"
+            style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+            <p className="text-sm mb-1" style={{color: '#888'}}>{card.label}</p>
+            <p className="text-2xl font-bold" style={{color: card.color}}>{card.value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="rounded-xl p-6" style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+        <h3 className="text-lg font-semibold mb-4" style={{color: '#D4AF37'}}>Actividad reciente</h3>
+        {[
+          { desc: 'Pago recibido - Cliente A', monto: '+$500', fecha: 'Hoy' },
+          { desc: 'Suscripción Adobe', monto: '-$54', fecha: 'Ayer' },
+          { desc: 'Transferencia enviada', monto: '-$200', fecha: '27 May' },
+        ].map((item, i) => (
+          <div key={i} className="flex justify-between items-center py-3"
+            style={{borderBottom: '1px solid #2A2A2A'}}>
+            <div>
+              <p className="text-white">{item.desc}</p>
+              <p className="text-sm" style={{color: '#555'}}>{item.fecha}</p>
+            </div>
+            <p className="font-bold"
+              style={{color: item.monto.startsWith('+') ? '#4ade80' : '#f87171'}}>
+              {item.monto}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Muestra el panel de inicio con tres tarjetas de resumen financiero (balance, ingresos, gastos) y una lista de las transacciones más recientes. Los montos positivos se muestran en verde y los negativos en rojo.
+
+---
+
+### 7.9 — `components/tabs/FinanzasTab.tsx`
+
+```tsx
+'use client';
+import { useState } from 'react';
+
+const transacciones = [
+  { desc: 'Pago cliente A', tipo: 'ingreso', monto: 500, fecha: '29 May' },
+  { desc: 'Renta oficina', tipo: 'gasto', monto: 300, fecha: '28 May' },
+  { desc: 'Proyecto web', tipo: 'ingreso', monto: 1200, fecha: '27 May' },
+  { desc: 'Suscripción Adobe', tipo: 'gasto', monto: 54, fecha: '26 May' },
+];
+
+export default function FinanzasTab() {
+  const [tipo, setTipo] = useState('todos');
+  const filtradas = transacciones.filter(t => tipo === 'todos' || t.tipo === tipo);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-2 text-white">💰 Finanzas</h2>
+      <p className="mb-8" style={{color: '#888'}}>Control de ingresos y gastos</p>
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="rounded-xl p-6" style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+          <p className="text-sm mb-1" style={{color: '#888'}}>Total ingresos</p>
+          <p className="text-2xl font-bold" style={{color: '#4ade80'}}>$1,700.00</p>
+        </div>
+        <div className="rounded-xl p-6" style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+          <p className="text-sm mb-1" style={{color: '#888'}}>Total gastos</p>
+          <p className="text-2xl font-bold" style={{color: '#f87171'}}>$354.00</p>
+        </div>
+      </div>
+      <div className="rounded-xl p-6" style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold" style={{color: '#D4AF37'}}>Transacciones</h3>
+          <div className="flex gap-2">
+            {['todos', 'ingreso', 'gasto'].map(t => (
+              <button key={t} onClick={() => setTipo(t)}
+                className="px-3 py-1 rounded-lg text-sm capitalize"
+                style={{background: tipo === t ? '#D4AF37' : '#2A2A2A',
+                        color: tipo === t ? '#0A0A0A' : '#888'}}>
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+        {filtradas.map((t, i) => (
+          <div key={i} className="flex justify-between items-center py-3"
+            style={{borderBottom: '1px solid #2A2A2A'}}>
+            <div>
+              <p className="text-white">{t.desc}</p>
+              <p className="text-sm" style={{color: '#555'}}>{t.fecha}</p>
+            </div>
+            <p className="font-bold"
+              style={{color: t.tipo === 'ingreso' ? '#4ade80' : '#f87171'}}>
+              {t.tipo === 'ingreso' ? '+' : '-'}${t.monto}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Módulo completo de control financiero. Muestra totales de ingresos y gastos, y una lista de transacciones filtrable por tipo (todos, ingreso, gasto). Preparado para conectarse con APIs bancarias reales como Belvo o Plaid.
+
+---
+
+### 7.10 — `components/tabs/AgendaTab.tsx`
+
+```tsx
+'use client';
+import { useState } from 'react';
+
+const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const eventos = [
+  { dia: 29, titulo: 'Reunión cliente A', hora: '10:00', color: '#D4AF37' },
+  { dia: 30, titulo: 'Entrega proyecto', hora: '14:00', color: '#4ade80' },
+  { dia: 31, titulo: 'Pago de renta', hora: '09:00', color: '#f87171' },
+];
+
+export default function AgendaTab() {
+  const [diaSeleccionado, setDiaSeleccionado] = useState(29);
+  const eventosDia = eventos.filter(e => e.dia === diaSeleccionado);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-2 text-white">📅 Agenda</h2>
+      <p className="mb-8" style={{color: '#888'}}>Mayo 2026</p>
+      <div className="grid grid-cols-7 gap-2 mb-8">
+        {dias.map(d => (
+          <div key={d} className="text-center text-sm py-2" style={{color: '#555'}}>{d}</div>
+        ))}
+        {Array.from({length: 31}, (_, i) => i + 1).map(dia => (
+          <button key={dia} onClick={() => setDiaSeleccionado(dia)}
+            className="rounded-lg py-2 text-sm transition-all"
+            style={{
+              background: diaSeleccionado === dia ? '#D4AF37' :
+                eventos.find(e => e.dia === dia) ? '#2A1A00' : '#1A1A1A',
+              color: diaSeleccionado === dia ? '#0A0A0A' :
+                eventos.find(e => e.dia === dia) ? '#D4AF37' : '#888',
+              border: eventos.find(e => e.dia === dia) ?
+                '1px solid #D4AF3750' : '1px solid transparent',
+            }}>
+            {dia}
+          </button>
+        ))}
+      </div>
+      <div className="rounded-xl p-6" style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+        <h3 className="font-semibold mb-4" style={{color: '#D4AF37'}}>
+          Eventos del día {diaSeleccionado}
+        </h3>
+        {eventosDia.length === 0
+          ? <p style={{color: '#555'}}>Sin eventos para este día</p>
+          : eventosDia.map((e, i) => (
+            <div key={i} className="flex items-center gap-4 py-3"
+              style={{borderBottom: '1px solid #2A2A2A'}}>
+              <div className="w-2 h-2 rounded-full" style={{background: e.color}} />
+              <div>
+                <p className="text-white font-medium">{e.titulo}</p>
+                <p className="text-sm" style={{color: '#555'}}>{e.hora}</p>
+              </div>
+            </div>
+          ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Calendario mensual interactivo que muestra los 31 días del mes. Los días con eventos se resaltan en dorado. Al hacer clic en cualquier día se muestran los eventos programados con su hora. Preparado para integrarse con Google Calendar API.
+
+---
+
+### 7.11 — `components/tabs/TareasTab.tsx`
+
+```tsx
+'use client';
+import { useState } from 'react';
+
+export default function TareasTab() {
+  const [tareas, setTareas] = useState([
+    { id: 1, texto: 'Enviar propuesta cliente B', completada: false, prioridad: 'alta' },
+    { id: 2, texto: 'Revisar contrato proyecto X', completada: false, prioridad: 'media' },
+    { id: 3, texto: 'Actualizar inventario', completada: true, prioridad: 'baja' },
+  ]);
+  const [nueva, setNueva] = useState('');
+
+  const agregar = () => {
+    if (!nueva.trim()) return;
+    setTareas([...tareas, { id: Date.now(), texto: nueva, completada: false, prioridad: 'media' }]);
+    setNueva('');
+  };
+
+  const toggleTarea = (id: number) => {
+    setTareas(tareas.map(t => t.id === id ? { ...t, completada: !t.completada } : t));
+  };
+
+  const colores: Record<string, string> = {
+    alta: '#f87171', media: '#D4AF37', baja: '#4ade80'
+  };
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-2 text-white">✅ Tareas</h2>
+      <p className="mb-8" style={{color: '#888'}}>
+        {tareas.filter(t => !t.completada).length} tareas pendientes
+      </p>
+      <div className="flex gap-2 mb-6">
+        <input value={nueva} onChange={(e) => setNueva(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && agregar()}
+          className="flex-1 rounded-lg px-4 py-3 text-white focus:outline-none"
+          style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}
+          placeholder="Nueva tarea..." />
+        <button onClick={agregar}
+          className="px-6 py-3 rounded-lg font-bold"
+          style={{background: '#D4AF37', color: '#0A0A0A'}}>
+          + Agregar
+        </button>
+      </div>
+      <div className="rounded-xl p-6" style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+        {tareas.map((tarea) => (
+          <div key={tarea.id} className="flex items-center gap-4 py-3"
+            style={{borderBottom: '1px solid #2A2A2A'}}>
+            <button onClick={() => toggleTarea(tarea.id)}
+              className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+              style={{background: tarea.completada ? '#D4AF37' : 'transparent',
+                      border: '2px solid #D4AF37'}}>
+              {tarea.completada && <span style={{color: '#0A0A0A', fontSize: 12}}>✓</span>}
+            </button>
+            <p className="flex-1"
+              style={{color: tarea.completada ? '#555' : '#fff',
+                      textDecoration: tarea.completada ? 'line-through' : 'none'}}>
+              {tarea.texto}
+            </p>
+            <span className="text-xs px-2 py-1 rounded-full"
+              style={{background: colores[tarea.prioridad] + '20',
+                      color: colores[tarea.prioridad]}}>
+              {tarea.prioridad}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Módulo de gestión de tareas funcional. Permite agregar nuevas tareas escribiendo y presionando Enter o el botón, marcar tareas como completadas con un clic, y ver la prioridad de cada tarea con código de colores. El contador de tareas pendientes se actualiza en tiempo real.
+
+---
+
+### 7.12 — `components/tabs/InventarioTab.tsx`
+
+```tsx
+'use client';
+import { useState } from 'react';
+
+const inicial = [
+  { id: 1, nombre: 'Laptop Dell', categoria: 'Equipos', cantidad: 3, precio: 800, estado: 'Disponible' },
+  { id: 2, nombre: 'Monitor LG', categoria: 'Equipos', cantidad: 5, precio: 250, estado: 'Disponible' },
+  { id: 3, nombre: 'Silla ergonómica', categoria: 'Mobiliario', cantidad: 2, precio: 180, estado: 'Bajo stock' },
+];
+
+export default function InventarioTab() {
+  const [items, setItems] = useState(inicial);
+  const [editando, setEditando] = useState<number | null>(null);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-2 text-white">📊 Inventario</h2>
+      <p className="mb-8" style={{color: '#888'}}>{items.length} productos registrados</p>
+      <div className="rounded-xl overflow-hidden" style={{border: '1px solid #2A2A2A'}}>
+        <table className="w-full">
+          <thead>
+            <tr style={{background: '#1A1A1A'}}>
+              {['Producto', 'Categoría', 'Cantidad', 'Precio unit.', 'Total', 'Estado'].map(h => (
+                <th key={h} className="text-left px-4 py-3 text-sm" style={{color: '#D4AF37'}}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item.id} style={{borderTop: '1px solid #2A2A2A', background: '#111111'}}>
+                <td className="px-4 py-3 text-white">{item.nombre}</td>
+                <td className="px-4 py-3" style={{color: '#888'}}>{item.categoria}</td>
+                <td className="px-4 py-3">
+                  {editando === item.id
+                    ? <input type="number" defaultValue={item.cantidad}
+                        className="w-16 rounded px-2 py-1 text-white"
+                        style={{background: '#2A2A2A', border: '1px solid #D4AF37'}}
+                        onBlur={(e) => {
+                          setItems(items.map(i =>
+                            i.id === item.id ? {...i, cantidad: Number(e.target.value)} : i));
+                          setEditando(null);
+                        }} />
+                    : <span className="text-white cursor-pointer"
+                        onClick={() => setEditando(item.id)}>{item.cantidad}</span>
+                  }
+                </td>
+                <td className="px-4 py-3" style={{color: '#888'}}>${item.precio}</td>
+                <td className="px-4 py-3 font-bold" style={{color: '#D4AF37'}}>
+                  ${item.cantidad * item.precio}
+                </td>
+                <td className="px-4 py-3">
+                  <span className="text-xs px-2 py-1 rounded-full"
+                    style={{
+                      background: item.estado === 'Disponible' ? '#4ade8020' : '#f8717120',
+                      color: item.estado === 'Disponible' ? '#4ade80' : '#f87171'
+                    }}>
+                    {item.estado}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 rounded-xl p-4 flex justify-between"
+        style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}>
+        <span style={{color: '#888'}}>Valor total del inventario</span>
+        <span className="font-bold text-xl" style={{color: '#D4AF37'}}>
+          ${items.reduce((acc, i) => acc + i.cantidad * i.precio, 0).toLocaleString()}
+        </span>
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Hoja de cálculo interactiva para gestionar el inventario de productos o activos. Las cantidades son editables en tiempo real con un clic. Calcula automáticamente el valor total por producto (cantidad × precio) y el valor total del inventario completo.
+
+---
+
+### 7.13 — `components/tabs/ContratosTab.tsx`
+
+```tsx
+'use client';
+import { useState } from 'react';
+
+const contratos = [
+  { id: 1, cliente: 'Cliente A', proyecto: 'Sitio web', monto: 2000,
+    estado: 'Activo', hash: '0x3f4a...9b2c' },
+  { id: 2, cliente: 'Cliente B', proyecto: 'App móvil', monto: 5000,
+    estado: 'Pendiente', hash: '0x7d1e...4f8a' },
+  { id: 3, cliente: 'Cliente C', proyecto: 'Consultoría', monto: 800,
+    estado: 'Completado', hash: '0x2b9c...1e3d' },
+];
+
+const colores: Record<string, string> = {
+  Activo: '#4ade80', Pendiente: '#D4AF37', Completado: '#888'
+};
+
+export default function ContratosTab() {
+  const [seleccionado, setSeleccionado] = useState<number | null>(null);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-2 text-white">📄 Contratos</h2>
+      <p className="mb-8" style={{color: '#888'}}>Contratos registrados en Ethereum blockchain</p>
+      <div className="grid gap-4">
+        {contratos.map((c) => (
+          <div key={c.id}
+            onClick={() => setSeleccionado(seleccionado === c.id ? null : c.id)}
+            className="rounded-xl p-6 cursor-pointer transition-all"
+            style={{background: '#1A1A1A',
+                    border: seleccionado === c.id ? '1px solid #D4AF37' : '1px solid #2A2A2A'}}>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-semibold text-white">{c.proyecto}</p>
+                <p className="text-sm" style={{color: '#888'}}>{c.cliente}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold" style={{color: '#D4AF37'}}>${c.monto}</p>
+                <span className="text-xs px-2 py-1 rounded-full"
+                  style={{background: colores[c.estado] + '20', color: colores[c.estado]}}>
+                  {c.estado}
+                </span>
+              </div>
+            </div>
+            {seleccionado === c.id && (
+              <div className="mt-4 pt-4" style={{borderTop: '1px solid #2A2A2A'}}>
+                <p className="text-sm mb-1" style={{color: '#888'}}>Hash en blockchain:</p>
+                <p className="font-mono text-sm" style={{color: '#D4AF37'}}>{c.hash}</p>
+                <div className="flex gap-2 mt-4">
+                  <button className="px-4 py-2 rounded-lg text-sm font-bold"
+                    style={{background: '#D4AF37', color: '#0A0A0A'}}>
+                    Ver en Etherscan
+                  </button>
+                  <button className="px-4 py-2 rounded-lg text-sm"
+                    style={{background: '#2A2A2A', color: '#888'}}>
+                    Descargar PDF
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Muestra los contratos del usuario con su estado (Activo, Pendiente, Completado) y el hash de verificación en la blockchain de Ethereum. Al hacer clic en un contrato se expande mostrando el hash on-chain y opciones para verlo en Etherscan o descargarlo como PDF.
+
+---
+
+### 7.14 — `components/tabs/FastyTab.tsx`
+
+```tsx
+'use client';
+import { useState } from 'react';
+
+type Mensaje = { rol: 'user' | 'fasty'; texto: string };
+
+const respuestas = [
+  'Analizando tus finanzas... Tu balance está creciendo un 12% este mes. ¡Buen trabajo!',
+  'Detecté que tus gastos en suscripciones aumentaron. ¿Quieres que te ayude a optimizarlos?',
+  'Tienes 2 pagos pendientes esta semana. Te recomiendo priorizarlos.',
+  'Basado en tu historial, podrías ahorrar $200 este mes reduciendo gastos variables.',
+];
+
+export default function FastyTab() {
+  const [mensajes, setMensajes] = useState<Mensaje[]>([
+    { rol: 'fasty', texto: '¡Hola! Soy Fasty, tu asistente financiero con IA. ¿En qué puedo ayudarte hoy?' }
+  ]);
+  const [input, setInput] = useState('');
+  const [cargando, setCargando] = useState(false);
+
+  const enviar = () => {
+    if (!input.trim()) return;
+    const nuevo = [...mensajes, { rol: 'user' as const, texto: input }];
+    setMensajes(nuevo);
+    setInput('');
+    setCargando(true);
+    setTimeout(() => {
+      const respuesta = respuestas[Math.floor(Math.random() * respuestas.length)];
+      setMensajes([...nuevo, { rol: 'fasty', texto: respuesta }]);
+      setCargando(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <h2 className="text-3xl font-bold mb-2 text-white">🤖 Fasty IA</h2>
+      <p className="mb-6" style={{color: '#888'}}>Tu asistente financiero inteligente</p>
+      <div className="flex-1 rounded-xl p-4 mb-4 overflow-y-auto flex flex-col gap-3"
+        style={{background: '#1A1A1A', border: '1px solid #2A2A2A',
+                minHeight: '400px', maxHeight: '500px'}}>
+        {mensajes.map((m, i) => (
+          <div key={i} className={`flex ${m.rol === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className="max-w-xs rounded-2xl px-4 py-3"
+              style={{background: m.rol === 'user' ? '#D4AF37' : '#2A2A2A',
+                      color: m.rol === 'user' ? '#0A0A0A' : '#fff'}}>
+              {m.rol === 'fasty' &&
+                <p className="text-xs font-bold mb-1" style={{color: '#D4AF37'}}>⚡ Fasty</p>}
+              <p className="text-sm">{m.texto}</p>
+            </div>
+          </div>
+        ))}
+        {cargando && (
+          <div className="flex justify-start">
+            <div className="rounded-2xl px-4 py-3" style={{background: '#2A2A2A'}}>
+              <p className="text-xs font-bold mb-1" style={{color: '#D4AF37'}}>⚡ Fasty</p>
+              <p className="text-sm" style={{color: '#888'}}>Analizando...</p>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <input value={input} onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && enviar()}
+          className="flex-1 rounded-lg px-4 py-3 text-white focus:outline-none"
+          style={{background: '#1A1A1A', border: '1px solid #2A2A2A'}}
+          placeholder="Pregúntale algo a Fasty..." />
+        <button onClick={enviar}
+          className="px-6 py-3 rounded-lg font-bold"
+          style={{background: '#D4AF37', color: '#0A0A0A'}}>
+          Enviar
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+**Para qué sirve:** Interfaz de chat con el asistente de IA de Fast Cash llamado Fasty. Los mensajes del usuario aparecen a la derecha en dorado y los de Fasty a la izquierda en gris oscuro. Actualmente responde con análisis financieros predefinidos. Preparado para conectarse a un modelo de lenguaje real (GPT-4, Claude, etc.).
+
+---
+
+### 7.15 — `CODIGO FastCash/src/main.ts` (Backend)
+
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { Logger } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
+  await app.listen(3001);
+
+  const logger = new Logger('FastCash');
+  logger.log('🚀 Fast Cash Backend corriendo en puerto 3001');
+}
+
+bootstrap();
+```
+
+**Para qué sirve:** Es el punto de entrada del servidor backend. Inicializa la aplicación NestJS, configura CORS para permitir peticiones desde el frontend (puerto 3000), arranca el servidor en el puerto 3001 y registra en consola que el servidor está corriendo.
+
+---
+
+### 7.16 — `CODIGO FastCash/src/modules/blockchain/blockchain.service.ts`
+
+```typescript
+import { Injectable, Logger } from '@nestjs/common';
+import { ethers } from 'ethers';
+
+@Injectable()
+export class BlockchainService {
+  private readonly logger = new Logger(BlockchainService.name);
+  private provider: ethers.JsonRpcProvider;
+
+  constructor() {
+    this.provider = new ethers.JsonRpcProvider(
+      'https://sepolia.infura.io/v3/demo'
+    );
+  }
+
+  async getBlockNumber(): Promise<number> {
+    try {
+      const block = await this.provider.getBlockNumber();
+      this.logger.log(`Bloque actual: ${block}`);
+      return block;
+    } catch {
+      this.logger.warn('Ethereum en modo demo');
+      return 999999;
+    }
+  }
+
+  async crearHashContrato(datos: object): Promise<string> {
+    const json = JSON.stringify(datos);
+    const hash = ethers.keccak256(ethers.toUtf8Bytes(json));
+    this.logger.log(`Hash generado: ${hash}`);
+    return hash;
+  }
+
+  async verificarContrato(hash: string): Promise<boolean> {
+    this.logger.log(`Verificando hash: ${hash}`);
+    return hash.startsWith('0x');
+  }
+
+  async getWalletBalance(address: string): Promise<string> {
+    try {
+      const balance = await this.provider.getBalance(address);
+      return ethers.formatEther(balance);
+    } catch {
+      return '0.0';
+    }
+  }
+}
+```
+
+**Para qué sirve:** Servicio que maneja toda la integración con la blockchain de Ethereum usando la red de pruebas Sepolia. Permite: obtener el número de bloque actual, generar hashes únicos para contratos usando el algoritmo keccak256 (el mismo que usa Ethereum), verificar si un hash es válido, y consultar el balance de una wallet en ETH.
+
+---
+
+### 7.17 — `CODIGO FastCash/tsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  },
+  "exclude": ["node_modules", "dist", "fast-cash-frontend"]
+}
+```
+
+**Para qué sirve:** Configuración del compilador TypeScript para el backend. Define cómo se compila el código: target ES2021 para compatibilidad moderna, emite decoradores para NestJS, genera mapas de código para debugging, excluye las carpetas que no deben compilarse (node_modules, dist y el frontend), y desactiva algunas reglas estrictas para facilitar el desarrollo.
+
+---
+
+## 8. Cómo ejecutar el proyecto
+
+**Backend:**
+```
+cd "CODIGO FastCash"
+npm run start:dev
+→ Disponible en: http://localhost:3001
+→ GraphQL Playground: http://localhost:3001/graphql
+```
+
+**Frontend:**
+```
+cd fast-cash-frontend
+npm run dev
+→ Disponible en: http://localhost:3000
+→ Dashboard: http://localhost:3000/dashboard
+```
+
+---
+
+## 9. Roadmap — Próximas funciones
+
+- Conexión real con backend GraphQL desde el frontend
+- Autenticación completa con registro y login real
+- Integración con Belvo/Plaid para cuentas bancarias reales
+- Fasty IA conectado a modelo de lenguaje real
+- Facturación electrónica automática (SRI/DIAN)
+- App móvil con React Native
+- Despliegue en AWS con Docker y Kubernetes
+- Smart contracts en Solidity para pagos automáticos
+- IPFS para almacenamiento descentralizado de archivos
+- MetaMask para autenticación con wallet crypto
+
+---
+
+*Documento generado el 29 de Mayo de 2026 — Fast Cash v1.0*
