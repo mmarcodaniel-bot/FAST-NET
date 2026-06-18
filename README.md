@@ -11,7 +11,116 @@ Plataforma fintech impulsada por inteligencia artificial, diseñada
 específicamente para **freelancers, emprendedores y trabajadores
 independientes de América Latina**.
 
+🔗 **Demo en vivo:** [# 💵 FastNet
+
+> **El copiloto financiero que los freelancers siempre merecieron.**
+
+[![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-00D4A0?style=flat-square)](https://deepskyblue-wren-473475.hostingersite.com/login)
+[![Stack](https://img.shields.io/badge/stack-React%20%2B%20Hostinger-3D7EFF?style=flat-square)]()
+[![IA](https://img.shields.io/badge/IA-Claude%20%2B%20Grok-8B5CF6?style=flat-square)]()
+
+Plataforma fintech impulsada por inteligencia artificial, diseñada
+específicamente para **freelancers, emprendedores y trabajadores
+independientes de América Latina**.
+
 🔗 **Demo en vivo:** [deepskyblue-wren-473475.hostingersite.com/login](https://deepskyblue-wren-473475.hostingersite.com/login)
+
+---
+
+## Tabla de contenidos
+
+- [¿Qué es FastNet?](#qué-es-fastnet)
+- [El problema](#el-problema-que-resolvemos)
+- [FASTY — el motor de IA](#fasty--el-motor-de-ia)
+- [Stack tecnológico](#stack-tecnológico)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Ejemplo de código — FASTY](#ejemplo-de-código--llamada-a-fasty)
+- [Mercado objetivo](#mercado-objetivo)
+- [Planes y precios](#planes-y-precios)
+- [Roadmap](#roadmap)
+- [Impacto esperado](#impacto-esperado)
+- [El equipo](#el-equipo)
+- [Cómo correrlo localmente](#cómo-correrlo-localmente)
+
+---
+
+## ¿Qué es FastNet?
+
+FastNet no se limita a registrar movimientos financieros: los
+interpreta, predice patrones y genera recomendaciones accionables
+a través de **FASTY**, nuestro motor de inteligencia artificial.
+
+> 📌 **Nota:** Algunos archivos del repositorio aún conservan el
+> nombre histórico **FastCash** (nombre original del proyecto antes
+> del rebranding a FastNet). El contenido es el mismo; solo cambia
+> el nombre de marca.
+
+**Próximamente — v3.1.0:**
+- Conexión de cuentas bancarias y wallets cripto
+- Transacciones ejecutadas directamente por FASTY
+- Motor FASTY optimizado para consumir menos tokens por consulta
+
+---
+
+## El problema que resolvemos
+
+Los trabajadores independientes gestionan sus finanzas con
+herramientas diseñadas para empleados de nómina o grandes empresas.
+Esto genera:
+
+| Problema | Consecuencia |
+|---|---|
+| Ingresos impredecibles | Sin visibilidad real del flujo de caja |
+| Falta de orientación profesional | La asesoría financiera sigue siendo cara e inaccesible |
+| Herramientas genéricas | No entienden la economía variable de un freelancer |
+| Ausencia de estructura | Dificultad para ahorrar sin automatización |
+| Incertidumbre constante | Estrés económico crónico por falta de información clara |
+
+---
+
+## FASTY — El motor de IA
+
+FASTY aprende cómo ganas, cómo gastas y cómo podrías mejorar — y te
+lo dice en lenguaje simple, sin jerga bancaria.
+
+**Capacidades:**
+
+- ✅ Registro automático de ingresos y gastos
+- ✅ Categorización inteligente en tiempo real
+- ✅ Análisis de patrones de gasto y ahorro
+- ✅ Predicción de flujo de caja para los próximos meses
+- ✅ Detección de riesgos financieros antes de que ocurran
+- ✅ Recomendaciones accionables y personalizadas
+- ✅ Alertas inteligentes en tiempo real
+- ✅ Reportes visuales fáciles de entender
+
+Las reglas de comportamiento y prompts de sistema de FASTY están
+documentadas en [`04_FASTY_Prompt_Engineering.md`](./04_FASTY_Prompt_Engineering.md).
+
+---
+
+## Stack tecnológico
+
+| Capa | Tecnología |
+|---|---|
+| **Frontend** | React |
+| **Hosting** | Hostinger |
+| **IA principal** | Claude API (Anthropic) |
+| **IA complementaria** | Grok API (xAI) |
+| **Base de datos** | PostgreSQL ([ver ERD](./03_ERD_PostgreSQL.md)) |
+| **Cifrado** | AES-256 |
+| **Bancos** | Belvo (Open Banking LATAM) |
+| **Pagos** | Stripe |
+| **Arquitectura cloud** | AWS / Azure ([ver detalle](./02_Arquitectura_AWS_Azure.md)) |
+| **Diseño** | Figma ([ver mockups](./01_Mockups_Figma.md)) |
+
+> 📄 Documentación de arquitectura completa en los archivos
+> `01` al `05` en la raíz del repositorio.
+
+---
+
+## Estructura del repositorio
+)
 
 ---
 
