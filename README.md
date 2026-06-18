@@ -11,7 +11,7 @@ Plataforma fintech impulsada por inteligencia artificial, diseñada
 específicamente para **freelancers, emprendedores y trabajadores
 independientes de América Latina**.
 
-🔗 **Demo en vivo:** [# 💵 FastNet
+🔗 **Demo en vivo:*https://silver-nightingale-622694.hostingersite.com/* [# 💵 FastNet
 
 > **El copiloto financiero que los freelancers siempre merecieron.**
 
@@ -23,8 +23,7 @@ Plataforma fintech impulsada por inteligencia artificial, diseñada
 específicamente para **freelancers, emprendedores y trabajadores
 independientes de América Latina**.
 
-🔗 **Demo en vivo:** [deepskyblue-wren-473475.hostingersite.com/login](https://deepskyblue-wren-473475.hostingersite.com/login)
-
+🔗 **Demo en vivo:** https://silver-nightingale-622694.hostingersite.com/
 ---
 
 ## Tabla de contenidos
@@ -367,8 +366,7 @@ npm install
 npm run dev
 ```
 
-🔗 **Demo desplegada en producción:**
-[[deepskyblue-wren-473475.hostingersite.com/login](https://deepskyblue-wren-473475.hostingersite.com/login](https://silver-nightingale-622694.hostingersite.com/login))
+🔗 **Demo desplegada en producción:** https://silver-nightingale-622694.hostingersite.com/
 
 ---
 
